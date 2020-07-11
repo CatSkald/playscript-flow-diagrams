@@ -1,0 +1,39 @@
+TITLE: Shipment Sorting
+BY: CatSkald
+SYNOPSIS: Boxes filled with products travel through a warehouse on a conveyor belt and get sorted according to their sizes.
+CHARACTERS:
+  - WMS: Warehouse Management System responsible for sending data to and gathering data from the machinery.
+  - Box Measurer: A set of scanners on the conveyor which measure the passing boxes. [3rd party]
+  - Box Sorter: Shipment sorting machine responsible for navigating boxes to the correct path of the conveyor belt. [3rd party]
+  - OMS: Order Management System where the customer orders are processed before they end up in the warehouse. [Out of scope]
+  - Website: Website where customers can order products. [Out of scope]
+PLOT:
+  - ACT 1:
+      - SCENE 1:
+          - A customer orders a bunch of products.
+          - WEBSITE:
+              - (To OMS) A customer order is created.
+          - OMS:
+              - (The order is prepared for packing.)
+              - (To WMS [async]) A new order has to be packed.
+      - SCENE 2:
+          - A warehouse employee gets the products from a shelf and puts them into a box.
+          - WMS:
+              - (To OMS) Give me a shipment label for the order.
+              - (The shipment label is printed and placed on the box.)
+              - (To OMS [async]) The shipment is packed.
+              - (To BOX MEASURER [async], BOX SORTER [async]) A new box is coming.
+          - Warehouse employee puts the box on the conveyor belt.
+          - BOX MEASURER:
+              - (The box is measured.)
+              - (To WMS) The shipment is processed.
+          - BOX SORTER:
+              - (The box is sorted.)
+              - (To WMS) The shipment is sorted.
+      - SCENE 3:
+          - Customer opens the website to see the status of their order.
+          - WEBSITE:
+              - (To OMS) Give me the order status.
+              - (To WMS) Give me the sort result for the shipment.
+              - (Displays the details to the user.)
+      - CURTAIN

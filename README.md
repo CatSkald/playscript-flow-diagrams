@@ -27,7 +27,9 @@ A small glossary of playwriting terms.
 
 ## Examples
 
-Sample playscripts can be found in the `./examples` folder. Just copy the content into the [editor](https://refined-github-html-preview.kidonng.workers.dev/CatSkald/playscript-flow-diagrams/raw/master/index.html) and see it in action.
+Sample playscripts can be found in the [examples](./examples) folder. Just copy content into the [editor](https://refined-github-html-preview.kidonng.workers.dev/CatSkald/playscript-flow-diagrams/raw/master/index.html) and see it in action.
+
+The list of available tags and styles is defined in `stageSettings.scenery` and `stageSettings.costumes` in [index.js](./index.js).
 
 ## Used Libraries
 

@@ -1,12 +1,11 @@
 TITLE: Hello, World!
 BY: Developer
-SYNOPSIS: A diagram illustrating a developer welcoming the world.
+SYNOPSIS: The simplest diagram.
 CHARACTERS:
   - Developer: A friendly kind.
-  - World: The one around you.
 PLOT:
   - ACT 1:
       - SCENE 1:
           - DEVELOPER:
-              - (To WORLD) Hello, World!
+              - (Hello, World!)
       - CURTAIN

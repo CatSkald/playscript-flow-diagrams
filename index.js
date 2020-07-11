@@ -1,4 +1,5 @@
 const stageSettings = {
+  //reserved language constructs for the playscript
   vocabulary: {
     tagsStart: "[",
     tagsEnd: "]",
@@ -6,18 +7,54 @@ const stageSettings = {
     accostStart: "(To ",
     accostEnd: ")",
     end: "CURTAIN",
+    actPrefix: "ACT ",
+    scenePrefix: "SCENE ",
+    directionClassName: "direction",
+    characterClassName: "character",
+    sceneClassName: "scene",
   },
+  //the color palette of the diagram
   scenery: {
-    characterColor: "darkblue",
-    characterText: "white",
-    directionColor: "aquamarine",
-    directionText: "black",
     connectionColor: "darkslategrey",
     connectionText: "black",
     sceneBorderColor: "darkslategrey",
     sceneBackgroundColor: "white",
   },
+  getTagClassName(tag) {
+    return "tag-" + tag.replace(/ /g, "_");
+  },
+  //custom tags (tag is generated using "getTagClassName" above)
+  //styles documentation can be found here: https://js.cytoscape.org/
   costumes: [
+    {
+      selector: ".direction",
+      style: {
+        "background-color": "aquamarine",
+        color: "black",
+        shape: "rectangle",
+      },
+    },
+    {
+      selector: ".character",
+      style: {
+        "background-color": "darkblue",
+        color: "white",
+        shape: "round-rectangle",
+      },
+    },
+    {
+      selector: ".tag-Database",
+      style: {
+        shape: "barrel",
+      },
+    },
+    {
+      selector: ".tag-User",
+      style: {
+        shape: "round-pentagon",
+        padding: "50px",
+      },
+    },
     {
       selector: ".tag-3rd_party",
       style: {
@@ -190,13 +227,12 @@ class Remark {
           stageSettings.vocabulary.tagsStart
         );
         if (indexOfTagsStart !== -1) {
-          const name = addressee.substring(0, indexOfTagsStart);
-          const tag = addressee.substring(
-            indexOfTagsStart + 1,
-            addressee.length - 1
-          );
-          this.addressees.push(name.trim());
-          this.tags.push(tag.trim());
+          const name = addressee.substring(0, indexOfTagsStart).trim();
+          const tag = addressee
+            .substring(indexOfTagsStart + 1, addressee.length - 1)
+            .trim();
+          this.addressees.push(name);
+          this.tags.push(tag);
         } else {
           this.addressees.push(addressee.trim());
         }
@@ -219,10 +255,10 @@ class Stage {
     this.graph = this.build(stageContainerId);
   }
   get currentAct() {
-    return "ACT " + this.stage.act;
+    return stageSettings.vocabulary.actPrefix + this.stage.act;
   }
   get currentScene() {
-    return "SCENE " + this.stage.scene;
+    return stageSettings.vocabulary.scenePrefix + this.stage.scene;
   }
   get currentDirection() {
     return this.stage.direction;
@@ -237,7 +273,7 @@ class Stage {
             content: "data(label)",
             "background-color": stageSettings.scenery.characterColor,
             color: stageSettings.scenery.characterText,
-            shape: "round-rectangle",
+            shape: "rectangle",
             "text-halign": "center",
             "text-valign": "center",
             "text-wrap": "wrap",
@@ -245,14 +281,6 @@ class Stage {
             width: "label",
             height: "label",
             padding: "30px",
-          },
-        },
-        {
-          selector: ".direction",
-          style: {
-            "background-color": stageSettings.scenery.directionColor,
-            color: stageSettings.scenery.directionText,
-            shape: "round-hexagon",
           },
         },
       ].concat(stageSettings.costumes),
@@ -264,11 +292,11 @@ class Stage {
     const directionNode = graph.add({
       group: "nodes",
       data: {
-        id: "direction",
+        id: stageSettings.vocabulary.directionClassName,
         label: "Processing description, user action or other operation",
       },
     });
-    directionNode.addClass("direction");
+    directionNode.addClass(stageSettings.vocabulary.directionClassName);
     characters.forEach((c) => {
       let label = `${c.name}\n\n${c.description}`;
       if (c.tags.length > 0) label += `\n(${c.tags.join(", ")})`;
@@ -280,7 +308,10 @@ class Stage {
           label: label,
         },
       });
-      c.tags.forEach((tag) => node.addClass(this.getTagClassName(tag)));
+      node.addClass(stageSettings.vocabulary.characterClassName);
+      c.tags.forEach((tag) =>
+        node.addClass(stageSettings.getTagClassName(tag))
+      );
     });
     graph
       .layout({
@@ -310,28 +341,14 @@ class Stage {
             "text-max-width": 160,
             width: "label",
             height: "label",
-            shape: "round-rectangle",
+            shape: "rectangle",
             padding: "20px",
           },
         },
         {
-          selector: ".character",
+          selector: "." + stageSettings.vocabulary.characterClassName,
           style: {
-            "background-color": stageSettings.scenery.characterColor,
-            color: stageSettings.scenery.characterText,
             "font-weight": "bold",
-            shape: "round-rectangle",
-          },
-        },
-        {
-          selector: ".direction",
-          style: {
-            "background-color": stageSettings.scenery.directionColor,
-            color: stageSettings.scenery.directionText,
-            "font-weight": "normal",
-            shape: "round-hexagon",
-            "text-max-width": 150,
-            padding: "30px",
           },
         },
         {
@@ -345,7 +362,7 @@ class Stage {
           },
         },
         {
-          selector: ".scene",
+          selector: "." + stageSettings.vocabulary.sceneClassName,
           style: {
             "text-valign": "top",
           },
@@ -432,7 +449,7 @@ class Stage {
     this.stage.act += 1;
     this.stage.scene = 0;
     //TODO only single act plays are supported - do we need more?
-    // const description = "ACT " + this.stage.act;
+    // const description = stageSettings.vocabulary.actPrefix + this.stage.act;
     // return this.graph.add({
     //   group: "nodes",
     //   data: { id: description, description: description },
@@ -441,7 +458,7 @@ class Stage {
   addScene() {
     this.stage.scene += 1;
     this.stage.direction = 0;
-    const description = "SCENE " + this.stage.scene;
+    const description = stageSettings.vocabulary.scenePrefix + this.stage.scene;
     const node = this.graph.add({
       group: "nodes",
       data: {
@@ -451,7 +468,7 @@ class Stage {
         label: description,
       },
     });
-    node.addClass("scene");
+    node.addClass(stageSettings.vocabulary.sceneClassName);
     return node;
   }
   addDirection(direction) {
@@ -464,14 +481,19 @@ class Stage {
         label: direction,
       },
     });
-    node.addClass("direction");
+    node.addClass(stageSettings.vocabulary.directionClassName);
     return node;
+  }
+  removeTrailingDot(text) {
+    return text.trim().endsWith(".")
+      ? text
+          .trim()
+          .substring(0, text.length - 1)
+          .trim()
+      : text.trim();
   }
   getNodeId(name) {
     return `${this.currentAct}.${this.currentScene}.${name}`;
-  }
-  getTagClassName(tag) {
-    return "tag-" + tag.replace(/ /g, "_");
   }
   enterCharacter(name, tags = []) {
     const nodeId = this.getNodeId(name);
@@ -485,17 +507,14 @@ class Stage {
         label: name,
       },
     });
-    node.addClass("character");
+    node.addClass(stageSettings.vocabulary.characterClassName);
     tags.forEach((tag) => {
-      node.addClass(this.getTagClassName(tag));
+      node.addClass(stageSettings.getTagClassName(tag));
     });
     return node;
   }
   address(from, to, description = "", tags = []) {
-    //remove trailing dot
-    if (description.endsWith(".")) {
-      description = description.substring(0, description.length - 1);
-    }
+    description = this.removeTrailingDot(description);
 
     const edge = this.graph.add({
       group: "edges",
@@ -507,7 +526,7 @@ class Stage {
     });
 
     tags.forEach((tag) => {
-      edge.addClass(this.getTagClassName(tag));
+      edge.addClass(stageSettings.getTagClassName(tag));
     });
 
     return edge;

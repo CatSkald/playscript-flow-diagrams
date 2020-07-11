@@ -1,45 +1,45 @@
-const vocabulary = {
-  tagsStart: "[",
-  tagsEnd: "]",
-  valuesSeparator: ",",
-  accostStart: "(To ",
-  accostEnd: ")",
-  end: "CURTAIN",
+const stageSettings = {
+  vocabulary: {
+    tagsStart: "[",
+    tagsEnd: "]",
+    valuesSeparator: ",",
+    accostStart: "(To ",
+    accostEnd: ")",
+    end: "CURTAIN",
+  },
+  scenery: {
+    characterColor: "darkblue",
+    characterText: "white",
+    directionColor: "aquamarine",
+    directionText: "black",
+    connectionColor: "darkslategrey",
+    connectionText: "black",
+    sceneBorderColor: "darkslategrey",
+    sceneBackgroundColor: "white",
+  },
+  costumes: [
+    {
+      selector: ".tag-3rd_party",
+      style: {
+        "background-color": "dimgrey",
+        color: "white",
+      },
+    },
+    {
+      selector: ".tag-Out_of_scope",
+      style: {
+        "background-color": "cornflowerblue",
+        color: "white",
+      },
+    },
+    {
+      selector: ".tag-async",
+      style: {
+        "line-style": "dashed",
+      },
+    },
+  ],
 };
-
-const scenery = {
-  characterColor: "blue",
-  characterText: "white",
-  directionColor: "lightgreen",
-  directionText: "black",
-  connectionColor: "darkblue",
-  connectionText: "black",
-  sceneBorderColor: "lightgreen",
-  sceneBackgroundColor: "white",
-};
-
-const customTags = [
-  {
-    selector: ".tag-3rd_party",
-    style: {
-      "background-color": "gray",
-      color: "white",
-    },
-  },
-  {
-    selector: ".tag-Out_of_scope",
-    style: {
-      "background-color": "lightblue",
-      color: "black",
-    },
-  },
-  {
-    selector: ".tag-async",
-    style: {
-      "line-style": "dashed",
-    },
-  },
-];
 
 class Play {
   constructor(stageContainerId, charactersContainerId, yaml) {
@@ -59,16 +59,18 @@ class Play {
     return characters.map((c) => {
       const name = Object.keys(c)[0];
       const value = c[name].trim();
-      const hasTags = value.includes(vocabulary.tagsStart);
+      const hasTags = value.includes(stageSettings.vocabulary.tagsStart);
       const description = hasTags
-        ? value.substring(0, value.indexOf(vocabulary.tagsStart)).trim()
+        ? value
+            .substring(0, value.indexOf(stageSettings.vocabulary.tagsStart))
+            .trim()
         : value;
       const tags = hasTags
         ? value
             .substring(description.length)
-            .replace(vocabulary.tagsStart, "")
-            .replace(vocabulary.tagsEnd, "")
-            .split(vocabulary.valuesSeparator)
+            .replace(stageSettings.vocabulary.tagsStart, "")
+            .replace(stageSettings.vocabulary.tagsEnd, "")
+            .split(stageSettings.vocabulary.valuesSeparator)
             .map((tag) => tag.trim())
         : [];
 
@@ -90,7 +92,7 @@ class Play {
 
     const performAct = (scenes) => {
       scenes.forEach((scene) => {
-        if (scene === vocabulary.end) return;
+        if (scene === stageSettings.vocabulary.end) return;
         this.stage.addScene();
         performScene(scene[this.stage.currentScene]);
       });
@@ -104,7 +106,6 @@ class Play {
     };
     const performScene = (speech) => {
       let currentCharacter = null;
-      const costumes = {};
       speech.forEach((remark) => {
         const isStageDirection = typeof remark === "string";
         if (isStageDirection) {
@@ -114,27 +115,23 @@ class Play {
           currentCharacter = performSpeech(
             nextCharacter,
             remark[nextCharacter],
-            currentCharacter,
-            costumes
+            currentCharacter
           );
         }
       });
     };
-    const performSpeech = (
-      currentCharacter,
-      speech,
-      previousCharacter,
-      costumes
-    ) => {
-      if (!costumes[currentCharacter]) {
-        costumes[currentCharacter] = this.stage.enterCharacter(
-          currentCharacter,
-          this.getCharacterTags(currentCharacter)
-        );
+    const performSpeech = (currentCharacter, speech, previousCharacter) => {
+      const isCreated = this.stage.enterCharacter(
+        currentCharacter,
+        this.getCharacterTags(currentCharacter)
+      );
 
-        if (previousCharacter && previousCharacter != currentCharacter) {
-          this.stage.address(previousCharacter, currentCharacter);
-        }
+      if (
+        isCreated &&
+        previousCharacter &&
+        previousCharacter != currentCharacter
+      ) {
+        this.stage.address(previousCharacter, currentCharacter);
       }
 
       speech.forEach((line) => {
@@ -146,12 +143,12 @@ class Play {
           case remark.typeDialogue:
             remark.addressees.forEach((addressee) => {
               if (!addressee) return;
-              if (!costumes[addressee]) {
-                costumes[addressee] = this.stage.enterCharacter(
-                  addressee,
-                  this.getCharacterTags(addressee)
-                );
-              }
+
+              this.stage.enterCharacter(
+                addressee,
+                this.getCharacterTags(addressee)
+              );
+
               this.stage.address(
                 currentCharacter,
                 addressee,
@@ -182,14 +179,16 @@ class Remark {
     this.addressees = [];
     this.tags = [];
 
-    if (remark.startsWith(vocabulary.accostStart)) {
+    if (remark.startsWith(stageSettings.vocabulary.accostStart)) {
       this.type = this.typeDialogue;
-      const accostEndIndex = remark.indexOf(vocabulary.accostEnd);
+      const accostEndIndex = remark.indexOf(stageSettings.vocabulary.accostEnd);
       const accost = remark
-        .substring(vocabulary.accostStart.length, accostEndIndex)
-        .split(vocabulary.valuesSeparator);
+        .substring(stageSettings.vocabulary.accostStart.length, accostEndIndex)
+        .split(stageSettings.vocabulary.valuesSeparator);
       accost.forEach((addressee) => {
-        const indexOfTagsStart = addressee.indexOf(vocabulary.tagsStart);
+        const indexOfTagsStart = addressee.indexOf(
+          stageSettings.vocabulary.tagsStart
+        );
         if (indexOfTagsStart !== -1) {
           const name = addressee.substring(0, indexOfTagsStart);
           const tag = addressee.substring(
@@ -236,8 +235,8 @@ class Stage {
           selector: "node",
           style: {
             content: "data(label)",
-            "background-color": scenery.characterColor,
-            color: scenery.characterText,
+            "background-color": stageSettings.scenery.characterColor,
+            color: stageSettings.scenery.characterText,
             shape: "round-rectangle",
             "text-halign": "center",
             "text-valign": "center",
@@ -251,15 +250,15 @@ class Stage {
         {
           selector: ".direction",
           style: {
-            "background-color": scenery.directionColor,
-            color: scenery.directionText,
+            "background-color": stageSettings.scenery.directionColor,
+            color: stageSettings.scenery.directionText,
             shape: "round-hexagon",
           },
         },
-      ].concat(customTags),
-      // initial viewport state:
+      ].concat(stageSettings.costumes),
       zoom: 1,
       pan: { x: 0, y: 0 },
+      wheelSensitivity: 0.1,
       styleEnabled: true,
     });
     const directionNode = graph.add({
@@ -318,8 +317,8 @@ class Stage {
         {
           selector: ".character",
           style: {
-            "background-color": scenery.characterColor,
-            color: scenery.characterText,
+            "background-color": stageSettings.scenery.characterColor,
+            color: stageSettings.scenery.characterText,
             "font-weight": "bold",
             shape: "round-rectangle",
           },
@@ -327,8 +326,8 @@ class Stage {
         {
           selector: ".direction",
           style: {
-            "background-color": scenery.directionColor,
-            color: scenery.directionText,
+            "background-color": stageSettings.scenery.directionColor,
+            color: stageSettings.scenery.directionText,
             "font-weight": "normal",
             shape: "round-hexagon",
             "text-max-width": 150,
@@ -338,11 +337,11 @@ class Stage {
         {
           selector: ":parent",
           style: {
-            "background-color": scenery.sceneBackgroundColor,
+            "background-color": stageSettings.scenery.sceneBackgroundColor,
             "font-weight": "bold",
             "border-width": "1px",
             "border-style": "dashed",
-            "border-color": scenery.sceneBorderColor,
+            "border-color": stageSettings.scenery.sceneBorderColor,
           },
         },
         {
@@ -358,14 +357,14 @@ class Stage {
             "curve-style": "bezier",
             "target-arrow-shape": "triangle",
             width: 2,
-            color: scenery.edgeText,
-            "line-color": scenery.connectionColor,
+            color: stageSettings.scenery.edgeText,
+            "line-color": stageSettings.scenery.connectionColor,
             "line-style": "solid",
-            "target-arrow-color": scenery.connectionColor,
+            "target-arrow-color": stageSettings.scenery.connectionColor,
             "text-rotation": "autorotate",
             "text-wrap": "wrap",
             "text-max-width": 200,
-            "text-background-color": scenery.sceneBackgroundColor,
+            "text-background-color": stageSettings.scenery.sceneBackgroundColor,
             "text-background-opacity": 1,
             "text-background-padding": "0px",
             "text-background-shape": "round-rectangle",
@@ -376,7 +375,7 @@ class Stage {
             "target-endpoint": "outside-to-node-or-label",
           },
         },
-      ].concat(customTags),
+      ].concat(stageSettings.costumes),
       // initial viewport state:
       zoom: 1,
       pan: { x: 0, y: 0 },
@@ -475,10 +474,13 @@ class Stage {
     return "tag-" + tag.replace(/ /g, "_");
   }
   enterCharacter(name, tags = []) {
+    const nodeId = this.getNodeId(name);
+    if (this.graph.$id(nodeId).length !== 0) return;
+
     const node = this.graph.add({
       group: "nodes",
       data: {
-        id: this.getNodeId(name),
+        id: nodeId,
         parent: this.currentScene,
         label: name,
       },

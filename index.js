@@ -7,7 +7,7 @@ const vocabulary = {
   end: "CURTAIN",
 };
 
-const decor = {
+const scenery = {
   characterColor: "blue",
   characterText: "white",
   directionColor: "lightgreen",
@@ -236,8 +236,8 @@ class Stage {
           selector: "node",
           style: {
             content: "data(label)",
-            "background-color": decor.characterColor,
-            color: decor.characterText,
+            "background-color": scenery.characterColor,
+            color: scenery.characterText,
             shape: "round-rectangle",
             "text-halign": "center",
             "text-valign": "center",
@@ -251,8 +251,8 @@ class Stage {
         {
           selector: ".direction",
           style: {
-            "background-color": decor.directionColor,
-            color: decor.directionText,
+            "background-color": scenery.directionColor,
+            color: scenery.directionText,
             shape: "round-hexagon",
           },
         },
@@ -318,8 +318,8 @@ class Stage {
         {
           selector: ".character",
           style: {
-            "background-color": decor.characterColor,
-            color: decor.characterText,
+            "background-color": scenery.characterColor,
+            color: scenery.characterText,
             "font-weight": "bold",
             shape: "round-rectangle",
           },
@@ -327,8 +327,8 @@ class Stage {
         {
           selector: ".direction",
           style: {
-            "background-color": decor.directionColor,
-            color: decor.directionText,
+            "background-color": scenery.directionColor,
+            color: scenery.directionText,
             "font-weight": "normal",
             shape: "round-hexagon",
             "text-max-width": 150,
@@ -338,11 +338,11 @@ class Stage {
         {
           selector: ":parent",
           style: {
-            "background-color": decor.sceneBackgroundColor,
+            "background-color": scenery.sceneBackgroundColor,
             "font-weight": "bold",
             "border-width": "1px",
             "border-style": "dashed",
-            "border-color": decor.sceneBorderColor,
+            "border-color": scenery.sceneBorderColor,
           },
         },
         {
@@ -358,14 +358,14 @@ class Stage {
             "curve-style": "bezier",
             "target-arrow-shape": "triangle",
             width: 2,
-            color: decor.edgeText,
-            "line-color": decor.connectionColor,
+            color: scenery.edgeText,
+            "line-color": scenery.connectionColor,
             "line-style": "solid",
-            "target-arrow-color": decor.connectionColor,
+            "target-arrow-color": scenery.connectionColor,
             "text-rotation": "autorotate",
             "text-wrap": "wrap",
             "text-max-width": 200,
-            "text-background-color": decor.sceneBackgroundColor,
+            "text-background-color": scenery.sceneBackgroundColor,
             "text-background-opacity": 1,
             "text-background-padding": "0px",
             "text-background-shape": "round-rectangle",
